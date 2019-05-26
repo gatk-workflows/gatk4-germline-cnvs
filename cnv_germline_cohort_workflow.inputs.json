@@ -1,0 +1,13 @@
+{
+  "CNVGermlineCohortWorkflow.normal_bams": "Array[String]+",
+  "CNVGermlineCohortWorkflow.normal_bais": "Array[String]+",
+  "CNVGermlineCohortWorkflow.cohort_entity_id": "String",
+  "CNVGermlineCohortWorkflow.ref_fasta": "File",
+  "CNVGermlineCohortWorkflow.ref_fasta_fai": "File",
+  "CNVGermlineCohortWorkflow.ref_fasta_dict": "File",
+  "CNVGermlineCohortWorkflow.intervals": "File",
+  "CNVGermlineCohortWorkflow.num_intervals_per_scatter": "Int",
+  "CNVGermlineCohortWorkflow.ref_copy_number_autosomal_contigs": "Int",
+  "CNVGermlineCohortWorkflow.contig_ploidy_priors": "File",
+  "CNVGermlineCohortWorkflow.gatk_docker": "String"
+}

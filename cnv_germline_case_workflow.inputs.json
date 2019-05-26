@@ -1,0 +1,17 @@
+{
+  "CNVGermlineCaseWorkflow.normal_bams": "Array[String]+",
+  "CNVGermlineCaseWorkflow.normal_bais": "Array[String]+",
+
+  "CNVGermlineCaseWorkflow.ref_fasta": "File",
+  "CNVGermlineCaseWorkflow.ref_fasta_fai": "File",
+  "CNVGermlineCaseWorkflow.ref_fasta_dict": "File",
+
+  "CNVGermlineCaseWorkflow.contig_ploidy_model_tar": "File",
+  "CNVGermlineCaseWorkflow.gcnv_model_tars": "Array[File]+",
+  "CNVGermlineCaseWorkflow.filtered_intervals": "File",
+  "CNVGermlineCaseWorkflow.intervals": "File",
+  "CNVGermlineCaseWorkflow.num_intervals_per_scatter": "Int",
+  "CNVGermlineCaseWorkflow.ref_copy_number_autosomal_contigs": "Int",
+
+  "CNVGermlineCaseWorkflow.gatk_docker": "String"
+}
