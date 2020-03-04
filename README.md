@@ -73,9 +73,9 @@ Note that lowering disk and memory too much will eventually lead to the workflow
  (Example: - A BAM file and its index)
   
 ### Software version notes :
-- GATK 4.1.2.0
+- GATK 4.1.5.0
 - Cromwell version support 
-  - Successfully tested on v37 
+  - Successfully tested on v47 
   - Does not work on versions < v23 due to output syntax
   
 ### Important Note :
