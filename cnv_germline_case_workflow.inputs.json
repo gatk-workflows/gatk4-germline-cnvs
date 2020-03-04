@@ -12,6 +12,7 @@
   "CNVGermlineCaseWorkflow.intervals": "File",
   "CNVGermlineCaseWorkflow.num_intervals_per_scatter": "Int",
   "CNVGermlineCaseWorkflow.ref_copy_number_autosomal_contigs": "Int",
+  "CNVGermlineCaseWorkflow.maximum_number_events_per_sample": "Int",
 
   "CNVGermlineCaseWorkflow.gatk_docker": "String"
 }

@@ -87,6 +87,7 @@ workflow CNVGermlineCohortWorkflow {
     #### optional arguments for CollectCounts ####
     ##############################################
     String? collect_counts_format
+    Boolean? collect_counts_enable_indexing
     Int? mem_gb_for_collect_counts
 
     ########################################################################
@@ -152,6 +153,11 @@ workflow CNVGermlineCohortWorkflow {
     Int ref_copy_number_autosomal_contigs
     Array[String]? allosomal_contigs
 
+    ##########################
+    #### arguments for QC ####
+    ##########################
+    Int maximum_number_events_per_sample
+
     Array[Pair[String, String]] normal_bams_and_bais = zip(normal_bams, normal_bais)
 
     call CNVTasks.PreprocessIntervals {
@@ -168,7 +174,7 @@ workflow CNVGermlineCohortWorkflow {
             preemptible_attempts = preemptible_attempts
     }
 
-    if (select_first([do_explicit_gc_correction, false])) {
+    if (select_first([do_explicit_gc_correction, true])) {
         call CNVTasks.AnnotateIntervals {
             input:
                 intervals = PreprocessIntervals.preprocessed_intervals,
@@ -197,6 +203,7 @@ workflow CNVGermlineCohortWorkflow {
                 ref_fasta_fai = ref_fasta_fai,
                 ref_fasta_dict = ref_fasta_dict,
                 format = collect_counts_format,
+                enable_indexing = collect_counts_enable_indexing,
                 gatk4_jar_override = gatk4_jar_override,
                 gatk_docker = gatk_docker,
                 mem_gb = mem_gb_for_collect_counts,
@@ -326,6 +333,22 @@ workflow CNVGermlineCohortWorkflow {
                 gatk_docker = gatk_docker,
                 preemptible_attempts = preemptible_attempts
         }
+
+        call CNVTasks.CollectSampleQualityMetrics {
+            input:
+                genotyped_segments_vcf = PostprocessGermlineCNVCalls.genotyped_segments_vcf,
+                entity_id = CollectCounts.entity_id[sample_index],
+                maximum_number_events = maximum_number_events_per_sample,
+                gatk_docker = gatk_docker,
+                preemptible_attempts = preemptible_attempts
+        }
+    }
+
+    call CNVTasks.CollectModelQualityMetrics {
+        input:
+            gcnv_model_tars = GermlineCNVCallerCohortMode.gcnv_model_tar,
+            gatk_docker = gatk_docker,
+            preemptible_attempts = preemptible_attempts
     }
 
     output {
@@ -341,6 +364,11 @@ workflow CNVGermlineCohortWorkflow {
         Array[File] gcnv_tracking_tars = GermlineCNVCallerCohortMode.gcnv_tracking_tar
         Array[File] genotyped_intervals_vcfs = PostprocessGermlineCNVCalls.genotyped_intervals_vcf
         Array[File] genotyped_segments_vcfs = PostprocessGermlineCNVCalls.genotyped_segments_vcf
+        Array[File] sample_qc_status_files = CollectSampleQualityMetrics.qc_status_file
+        Array[String] sample_qc_status_strings = CollectSampleQualityMetrics.qc_status_string
+        File model_qc_status_file = CollectModelQualityMetrics.qc_status_file
+        String model_qc_string = CollectModelQualityMetrics.qc_status_string
+        Array[File] denoised_copy_ratios = PostprocessGermlineCNVCalls.denoised_copy_ratios
     }
 }
 
@@ -398,7 +426,7 @@ task DetermineGermlineContigPloidyCohortMode {
     >>>
 
     runtime {
-        docker: "${gatk_docker}"
+        docker: gatk_docker
         memory: machine_mem_mb + " MB"
         disks: "local-disk " + select_first([disk_space_gb, 150]) + if use_ssd then " SSD" else " HDD"
         cpu: select_first([cpu, 8])
@@ -554,7 +582,7 @@ task GermlineCNVCallerCohortMode {
     >>>
 
     runtime {
-        docker: "${gatk_docker}"
+        docker: gatk_docker
         memory: machine_mem_mb + " MB"
         disks: "local-disk " + select_first([disk_space_gb, 150]) + if use_ssd then " SSD" else " HDD"
         cpu: select_first([cpu, 8])

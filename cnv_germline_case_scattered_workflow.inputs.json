@@ -13,5 +13,5 @@
   "CNVGermlineCaseScatteredWorkflow.ref_copy_number_autosomal_contigs": "Int",
   "CNVGermlineCaseScatteredWorkflow.contig_ploidy_model_tar": "File",
 
-  "CNVGermlineCaseScatteredWorkflow.gatk_docker": "String",
+  "CNVGermlineCaseScatteredWorkflow.gatk_docker": "String"
 }

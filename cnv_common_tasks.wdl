@@ -39,7 +39,7 @@ task PreprocessIntervals {
     >>>
 
     runtime {
-        docker: "${gatk_docker}"
+        docker: gatk_docker
         memory: machine_mem_mb + " MB"
         disks: "local-disk " + select_first([disk_space_gb, 40]) + if use_ssd then " SSD" else " HDD"
         cpu: select_first([cpu, 1])
@@ -93,7 +93,7 @@ task AnnotateIntervals {
     >>>
 
     runtime {
-        docker: "${gatk_docker}"
+        docker: gatk_docker
         memory: machine_mem_mb + " MB"
         disks: "local-disk " + select_first([disk_space_gb, ceil(size(ref_fasta, "GB")) + 50]) + if use_ssd then " SSD" else " HDD"
         cpu: select_first([cpu, 1])
@@ -163,7 +163,7 @@ task FilterIntervals {
     >>>
 
     runtime {
-        docker: "${gatk_docker}"
+        docker: gatk_docker
         memory: machine_mem_mb + " MB"
         disks: "local-disk " + select_first([disk_space_gb, 50]) + if use_ssd then " SSD" else " HDD"
         cpu: select_first([cpu, 1])
@@ -182,6 +182,7 @@ task CollectCounts {
     File ref_fasta
     File ref_fasta_fai
     File ref_fasta_dict
+    Boolean? enable_indexing
     String? format
     File? gatk4_jar_override
 
@@ -196,25 +197,73 @@ task CollectCounts {
     Int machine_mem_mb = select_first([mem_gb, 7]) * 1000
     Int command_mem_mb = machine_mem_mb - 1000
 
+    Boolean enable_indexing_ = select_first([enable_indexing, false])
+
     # Sample name is derived from the bam filename
     String base_filename = basename(bam, ".bam")
-    String counts_filename = if !defined(format) then "${base_filename}.counts.hdf5" else "${base_filename}.counts.tsv"
+    String format_ = select_first([format, "HDF5"])
+    String hdf5_or_tsv_or_null_format =
+        if format_ == "HDF5" then "HDF5" else
+        (if format_ == "TSV" then "TSV" else
+        (if format_ == "TSV_GZ" then "TSV" else "null")) # until we can write TSV_GZ in CollectReadCounts, we write TSV and use bgzip
+    String counts_filename_extension =
+        if format_ == "HDF5" then "counts.hdf5" else
+        (if format_ == "TSV" then "counts.tsv" else
+        (if format_ == "TSV_GZ" then "counts.tsv.gz" else "null"))
+    String counts_index_filename_extension =
+        if format_ == "HDF5" then "null" else
+        (if format_ == "TSV" then "counts.tsv.idx" else
+        (if format_ == "TSV_GZ" then "counts.tsv.gz.tbi" else "null"))
+    Boolean do_block_compression =
+        if format_ == "HDF5" then false else
+        (if format_ == "TSV" then false else
+        (if format_ == "TSV_GZ" then true else false))
+    String counts_filename = "${base_filename}.${counts_filename_extension}"
+    String counts_filename_for_collect_read_counts = basename(counts_filename, ".gz")
 
     command <<<
         set -e
         export GATK_LOCAL_JAR=${default="/root/gatk.jar" gatk4_jar_override}
 
+        case ${format_} in
+            HDF5 | TSV | TSV_GZ)
+                ;;
+            *)
+                echo "ERROR: Unknown format specified. Format must be one of HDF5, TSV, or TSV_GZ."
+                exit 1
+                ;;
+        esac
+
+        if [ ${format_} = "HDF5" ] && [ ${enable_indexing_} = "true" ]; then
+            echo "ERROR: Incompatible WDL parameters. Cannot have format = HDF5 and enable_indexing = true."
+            exit 1
+        fi
+
+        if [ ${hdf5_or_tsv_or_null_format} = "null" ]; then
+            echo "ERROR: Should never reach here."
+            exit 1
+        fi
+
         gatk --java-options "-Xmx${command_mem_mb}m" CollectReadCounts \
             -L ${intervals} \
             --input ${bam} \
             --reference ${ref_fasta} \
-            --format ${default="HDF5" format} \
+            --format ${default="HDF5" hdf5_or_tsv_or_null_format} \
             --interval-merging-rule OVERLAPPING_ONLY \
-            --output ${counts_filename}
+            --output ${counts_filename_for_collect_read_counts}
+
+        if [ ${do_block_compression} = "true" ]; then
+            bgzip ${counts_filename_for_collect_read_counts}
+        fi
+
+        if [ ${enable_indexing_} = "true" ]; then
+            gatk --java-options "-Xmx${command_mem_mb}m" IndexFeatureFile \
+                -I ${counts_filename}
+        fi
     >>>
 
     runtime {
-        docker: "${gatk_docker}"
+        docker: gatk_docker
         memory: machine_mem_mb + " MB"
         disks: "local-disk " + select_first([disk_space_gb, ceil(size(bam, "GB")) + 50]) + if use_ssd then " SSD" else " HDD"
         cpu: select_first([cpu, 1])
@@ -266,7 +315,7 @@ task CollectAllelicCounts {
     >>>
 
     runtime {
-        docker: "${gatk_docker}"
+        docker: gatk_docker
         memory: machine_mem_mb + " MB"
         disks: "local-disk " + select_first([disk_space_gb, ceil(size(bam, "GB")) + 50]) + if use_ssd then " SSD" else " HDD"
         cpu: select_first([cpu, 1])
@@ -343,7 +392,7 @@ task ScatterIntervals {
     >>>
 
     runtime {
-        docker: "${gatk_docker}"
+        docker: gatk_docker
         memory: machine_mem_mb + " MB"
         disks: "local-disk " + select_first([disk_space_gb, 40]) + if use_ssd then " SSD" else " HDD"
         cpu: select_first([cpu, 1])
@@ -382,6 +431,7 @@ task PostprocessGermlineCNVCalls {
 
     String genotyped_intervals_vcf_filename = "genotyped-intervals-${entity_id}.vcf.gz"
     String genotyped_segments_vcf_filename = "genotyped-segments-${entity_id}.vcf.gz"
+    String denoised_copy_ratios_filename = "denoised_copy_ratios-${entity_id}.tsv"
 
     Array[String] allosomal_contigs_args = if defined(allosomal_contigs) then prefix("--allosomal-contig ", select_first([allosomal_contigs])) else []
 
@@ -433,7 +483,8 @@ task PostprocessGermlineCNVCalls {
             --contig-ploidy-calls contig-ploidy-calls \
             --sample-index ${sample_index} \
             --output-genotyped-intervals ${genotyped_intervals_vcf_filename} \
-            --output-genotyped-segments ${genotyped_segments_vcf_filename}
+            --output-genotyped-segments ${genotyped_segments_vcf_filename} \
+            --output-denoised-copy-ratios ${denoised_copy_ratios_filename}
 
         rm -rf CALLS_*
         rm -rf MODEL_*
@@ -441,7 +492,7 @@ task PostprocessGermlineCNVCalls {
     >>>
 
     runtime {
-        docker: "${gatk_docker}"
+        docker: gatk_docker
         memory: machine_mem_mb + " MB"
         disks: "local-disk " + select_first([disk_space_gb, 40]) + if use_ssd then " SSD" else " HDD"
         cpu: select_first([cpu, 1])
@@ -451,5 +502,97 @@ task PostprocessGermlineCNVCalls {
     output {
         File genotyped_intervals_vcf = genotyped_intervals_vcf_filename
         File genotyped_segments_vcf = genotyped_segments_vcf_filename
+        File denoised_copy_ratios = denoised_copy_ratios_filename
+    }
+}
+
+task CollectSampleQualityMetrics {
+    File genotyped_segments_vcf
+    String entity_id
+    Int maximum_number_events
+
+    # Runtime parameters
+    String gatk_docker
+    Int? mem_gb
+    Int? disk_space_gb
+    Boolean use_ssd = false
+    Int? cpu
+    Int? preemptible_attempts
+
+    Int machine_mem_mb = select_first([mem_gb, 1]) * 1000
+
+    String dollar = "$" #WDL workaround for using array[@], see https://github.com/broadinstitute/cromwell/issues/1819
+
+    command <<<
+        set -e 
+        NUM_SEGMENTS=$(gunzip -c ${genotyped_segments_vcf} | grep -v '#' | wc -l)
+        if [ $NUM_SEGMENTS -lt ${maximum_number_events} ]; then
+            echo "PASS" >> ${entity_id}.qcStatus.txt
+        else 
+            echo "EXCESSIVE_NUMBER_OF_EVENTS" >> ${entity_id}.qcStatus.txt
+        fi
+    >>>
+
+    runtime {
+        docker: gatk_docker
+        memory: machine_mem_mb + " MB"
+        disks: "local-disk " + select_first([disk_space_gb, 20]) + if use_ssd then " SSD" else " HDD"
+        cpu: select_first([cpu, 1])
+        preemptible: select_first([preemptible_attempts, 5])
+    }
+
+    output {
+        File qc_status_file = "${entity_id}.qcStatus.txt"
+        String qc_status_string = read_string("${entity_id}.qcStatus.txt")
+    }
+}
+
+task CollectModelQualityMetrics {
+    Array[File] gcnv_model_tars
+
+    # Runtime parameters
+    String gatk_docker
+    Int? mem_gb
+    Int? disk_space_gb
+    Boolean use_ssd = false
+    Int? cpu
+    Int? preemptible_attempts
+
+    Int machine_mem_mb = select_first([mem_gb, 1]) * 1000
+
+    String dollar = "$" #WDL workaround for using array[@], see https://github.com/broadinstitute/cromwell/issues/1819
+
+    command <<<
+        sed -e 
+        qc_status="PASS"
+
+        gcnv_model_tar_array=(${sep=" " gcnv_model_tars})
+        for index in ${dollar}{!gcnv_model_tar_array[@]}; do
+            gcnv_model_tar=${dollar}{gcnv_model_tar_array[$index]}
+            mkdir MODEL_$index
+            tar xzf $gcnv_model_tar -C MODEL_$index
+            ard_file=MODEL_$index/mu_ard_u_log__.tsv
+
+            #check whether all values for ARD components are negative
+            NUM_POSITIVE_VALUES=$(awk '{ if (index($0, "@") == 0) {if ($1 > 0.0) {print $1} }}' MODEL_$index/mu_ard_u_log__.tsv | wc -l)
+            if [ $NUM_POSITIVE_VALUES -eq 0 ]; then
+                qc_status="ALL_PRINCIPAL_COMPONENTS_USED"
+                break
+            fi
+        done
+        echo $qc_status >> qcStatus.txt
+    >>>
+
+    runtime {
+        docker: gatk_docker
+        memory: machine_mem_mb + " MB"
+        disks: "local-disk " + select_first([disk_space_gb, 40]) + if use_ssd then " SSD" else " HDD"
+        cpu: select_first([cpu, 1])
+        preemptible: select_first([preemptible_attempts, 5])
+    }
+
+    output {
+        File qc_status_file = "qcStatus.txt"
+        String qc_status_string = read_string("qcStatus.txt")
     }
 }

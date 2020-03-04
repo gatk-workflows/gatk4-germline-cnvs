@@ -49,6 +49,7 @@ workflow CNVGermlineCaseScatteredWorkflow {
     #### optional arguments for CollectCounts ####
     ##############################################
     String? collect_counts_format
+    Boolean? collect_counts_enable_indexing
     Int? mem_gb_for_collect_counts
 
     ######################################################################
@@ -105,6 +106,11 @@ workflow CNVGermlineCaseScatteredWorkflow {
     Int ref_copy_number_autosomal_contigs
     Array[String]? allosomal_contigs
 
+    ##########################
+    #### arguments for QC ####
+    ##########################
+    Int maximum_number_events_per_sample
+
     call SplitInputArray as SplitInputBamsList {
         input:
             input_array = normal_bams,
@@ -142,6 +148,7 @@ workflow CNVGermlineCaseScatteredWorkflow {
                 padding = padding,
                 bin_length = bin_length,
                 collect_counts_format = collect_counts_format,
+                collect_counts_enable_indexing = collect_counts_enable_indexing,
                 mem_gb_for_collect_counts = mem_gb_for_collect_counts,
                 ploidy_mapping_error_rate = ploidy_mapping_error_rate,
                 ploidy_sample_psi_scale = ploidy_sample_psi_scale,
@@ -180,7 +187,8 @@ workflow CNVGermlineCaseScatteredWorkflow {
                 gcnv_caller_external_admixing_rate = gcnv_caller_external_admixing_rate,
                 gcnv_disable_annealing = gcnv_disable_annealing,
                 ref_copy_number_autosomal_contigs = ref_copy_number_autosomal_contigs,
-                allosomal_contigs = allosomal_contigs 
+                allosomal_contigs = allosomal_contigs,
+                maximum_number_events_per_sample = maximum_number_events_per_sample
         }
     }
 
@@ -193,6 +201,9 @@ workflow CNVGermlineCaseScatteredWorkflow {
         Array[Array[File]] gcnv_tracking_tars = CNVGermlineCaseWorkflow.gcnv_tracking_tars
         Array[Array[File]] genotyped_intervals_vcf = CNVGermlineCaseWorkflow.genotyped_intervals_vcf
         Array[Array[File]] genotyped_segments_vcf = CNVGermlineCaseWorkflow.genotyped_segments_vcf
+        Array[Array[File]] qc_status_files = CNVGermlineCaseWorkflow.qc_status_files
+        Array[Array[String]] qc_status_strings = CNVGermlineCaseWorkflow.qc_status_strings
+        Array[Array[File]] denoised_copy_ratios = CNVGermlineCaseWorkflow.denoised_copy_ratios
     }
 }
 
@@ -229,7 +240,7 @@ task SplitInputArray {
     >>>
 
     runtime {
-        docker: "${gatk_docker}"
+        docker: gatk_docker
         memory: machine_mem_mb + " MB"
         disks: "local-disk " + select_first([disk_space_gb, 150]) + if use_ssd then " SSD" else " HDD"
         cpu: select_first([cpu, 8])
