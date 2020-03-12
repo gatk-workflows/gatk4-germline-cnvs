@@ -1,8 +1,11 @@
 # gatk4-germline-cnvs
+The workflows in the repository are used to detect germline copy number variants (gCNVs) on exome sequence data. 
 
 - Cohort WDL: Calling a cohort of samples and building a model for denoising further case samples: ``cnv_germline_cohort_workflow.wdl``
 - Case WDL: Calling case samples using a previously built model for denoising: ``cnv_germline_case_workflow.wdl``
 - Scattered case WDL (recommended): Functionally equivalent to case WDL, written for reducing cloud compute cost (see below) and wall-clock time ``cnv_germline_case_scattered_workflow.wdl``
+
+
 
 #### Setting up parameter json file for a run
 
@@ -83,7 +86,7 @@ Note that lowering disk and memory too much will eventually lead to the workflow
 ### Software version notes :
 - GATK 4.1.5.0
 - Cromwell version support 
-  - Successfully tested on v47 
+  - Successfully tested on v48
   - Does not work on versions < v23 due to output syntax
   
 ### Important Notes :
