@@ -12,7 +12,7 @@
 
 #import "cnv_germline_case_workflow.wdl" as GermlineCNVCaseWorkflow
 
-import "https://raw.githubusercontent.com/gatk-workflows/gatk4-germline-cnvs/dev/cnv_germline_case_workflow.wdl" as GermlineCNVCaseWorkflow
+import "https://raw.githubusercontent.com/gatk-workflows/gatk4-germline-cnvs/1.0.0/cnv_germline_case_workflow.wdl" as GermlineCNVCaseWorkflow
 
 workflow CNVGermlineCaseScatteredWorkflow {
 
