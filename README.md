@@ -59,7 +59,7 @@ Further explanation of these task-level parameters may be found by invoking the 
 
 Same required parameters as in the germline case workflow. However, in order to reduce wall-clock time and compute cost, it is recommended to optimize for the following parameters:
 
-- The following material is provided by the Data Science Platforum group at the Broad Institute. Pleas- ``CNVGermlineCaseScatteredWorkflow.num_samples_per_scatter_block`` -- (recommended WES value=25) number of samples to process in a single block; blocks of this size will be sent to the germline case workflow and processed in a batch; 
+-``CNVGermlineCaseScatteredWorkflow.num_samples_per_scatter_block`` -- (recommended WES value=25) number of samples to process in a single block; blocks of this size will be sent to the germline case workflow and processed in a batch; 
 - ``CNVGermlineCaseScatteredWorkflow.preemptible_attempts`` -- (recommended value=5) this reduces cost by using preemptible instances
 - ``CNVGermlineCaseScatteredWorkflow.mem_gb_for_determine_germline_contig_ploidy`` -- amount of memory allotted for ploidy determination tasks (the lower the cheaper)
 - ``CNVGermlineCaseScatteredWorkflow.cpu_for_determine_germline_contig_ploidy`` -- number of CPU cores allotted for ploidy determination tasks (the lower the cheaper)
