@@ -23,8 +23,6 @@
 
 import "./tasks/cnv_common_tasks.wdl" as CNVTasks
 
-#import "https://raw.githubusercontent.com/gatk-workflows/gatk4-germline-cnvs/1.0.0/cnv_common_tasks.wdl" as CNVTasks
-
 workflow CNVGermlineCaseWorkflow {
 
     ##################################
