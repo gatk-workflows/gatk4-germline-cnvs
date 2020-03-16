@@ -3,16 +3,15 @@
 # preemptible cloud instances with low memory requirements. CPU, memory and disk requirements can be 
 # lowered for GermlineCNVCaller and DetermineGermlineContigPloidy tasks. 
 # 
-#
 # - Example invocation:
 #
 #       java -jar cromwell.jar run cnv_germline_case_scattered_workflow.wdl -i my_parameters.json
 #
 ####################
 
-#import "cnv_germline_case_workflow.wdl" as GermlineCNVCaseWorkflow
+import "./tasks/cnv_germline_case_workflow.wdl" as GermlineCNVCaseWorkflow
 
-import "https://raw.githubusercontent.com/gatk-workflows/gatk4-germline-cnvs/1.0.0/cnv_germline_case_workflow.wdl" as GermlineCNVCaseWorkflow
+#import "https://raw.githubusercontent.com/gatk-workflows/gatk4-germline-cnvs/1.0.0/cnv_germline_case_workflow.wdl" as GermlineCNVCaseWorkflow
 
 workflow CNVGermlineCaseScatteredWorkflow {
 
