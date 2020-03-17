@@ -1,5 +1,5 @@
 # gatk4-germline-cnvs
-The workflows in the repository are used to detect germline copy number variants using GATKs GermlineCNVCaller on exome sequence data. 
+The workflows in the repository are used to detect germline copy number variants using GATKs GermlineCNVCaller on exome sequence data. For documentation on the tools and their parameters please visit the [GATK Tool Documentation](https://gatk.broadinstitute.org/hc/en-us/categories/360002310591) site and for a step by step walkthrough of detecting germline copy number variants using GATK tools please review [How-to-Call-common-and-rare-germline-copy-number-variants](https://gatk.broadinstitute.org/hc/en-us/articles/360035531152).
 
 - Cohort WDL: Calling a cohort of samples and building a model for denoising further case samples: ``cnv_germline_cohort_workflow.wdl``
 - Case WDL (recommended): Calling case samples using a previously built model for denoising: ``cnv_germline_case_workflow.wdl``
