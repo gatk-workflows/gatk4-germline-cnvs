@@ -30,6 +30,7 @@
   "CNVGermlineCaseWorkflow.gcnv_max_copy_number": 3,
   "CNVGermlineCaseWorkflow.gcnv_max_calling_iters": 1,
   "CNVGermlineCaseWorkflow.maximum_number_events_per_sample": 120,
+  "CNVGermlineCaseWorkflow.PreprocessIntervals.bin_length": 0,
   "CNVGermlineCaseWorkflow.ref_fasta_dict": "gs://gatk-best-practices/cnv_germline_pipeline/Homo_sapiens_assembly19.truncated.dict",
   "CNVGermlineCaseWorkflow.ref_fasta_fai": "gs://gatk-best-practices/cnv_germline_pipeline/Homo_sapiens_assembly19.truncated.fasta.fai",
   "CNVGermlineCaseWorkflow.ref_fasta": "gs://gatk-best-practices/cnv_germline_pipeline/Homo_sapiens_assembly19.truncated.fasta"
