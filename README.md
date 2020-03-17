@@ -16,7 +16,7 @@ To get started, create the json template (using ``java -jar wdltool.jar inputs <
 The reference used must be the same between PoN and case samples.
 
 - ``CNVGermlineCohortWorkflow.cohort_entity_id`` -- Name of the cohort.  Will be used as a prefix for output filenames.
-- ``CNVGermlineCohortWorkflow.contig_ploidy_priors`` -- TSV file containing prior probabilities for the ploidy of each contig, with column headers: CONTIG_NAME, PLOIDY_PRIOR_0, PLOIDY_PRIOR_1, ...
+- ``CNVGermlineCohortWorkflow.contig_ploidy_priors`` -- TSV file containing prior probabilities for the ploidy of each contig (e.g. 2 for human autosomes and 0.5 for chrY), with column headers: CONTIG_NAME, PLOIDY_PRIOR_0, PLOIDY_PRIOR_1, ...
 - ``CNVGermlineCohortWorkflow.gatk_docker`` -- GATK Docker image (e.g., ``broadinstitute/gatk:4.1.5.0``).
 - ``CNVGermlineCohortWorkflow.intervals`` -- Picard or GATK-style interval list.
 - ``CNVGermlineCohortWorkflow.normal_bais`` -- List of BAI files.  This list must correspond to `normal_bams`.  For example, `["Sample1.bai", "Sample2.bai"]`.
