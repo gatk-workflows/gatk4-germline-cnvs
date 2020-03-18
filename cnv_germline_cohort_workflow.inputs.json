@@ -5,7 +5,6 @@
   "CNVGermlineCohortWorkflow.gatk_docker": "broadinstitute/gatk:4.1.5.0",
   "CNVGermlineCohortWorkflow.allosomal_contigs": ["X", "Y"],
   "CNVGermlineCohortWorkflow.ref_copy_number_autosomal_contigs": 2,
-  "CNVGermlineCohortWorkflow.gcnv_disable_annealing": true,
   "CNVGermlineCohortWorkflow.gcnv_initial_temperature": 1.0,
   "CNVGermlineCohortWorkflow.gcnv_max_training_epochs": 1,
   "CNVGermlineCohortWorkflow.gcnv_min_training_epochs": 1,
