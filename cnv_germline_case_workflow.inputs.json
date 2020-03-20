@@ -1,0 +1,36 @@
+{
+  "CNVGermlineCaseWorkflow.normal_bams": [
+    "gs://gatk-best-practices/cnv_germline_pipeline/SM-74NEG_20xy-downsampled.bam",
+    "gs://gatk-best-practices/cnv_germline_pipeline/SM-74P2T_20xy-downsampled.bam",
+    "gs://gatk-best-practices/cnv_germline_pipeline/SM-74P35_20xy-downsampled.bam"
+    ],
+  "CNVGermlineCaseWorkflow.normal_bais": [
+    "gs://gatk-best-practices/cnv_germline_pipeline/SM-74NEG_20xy-downsampled.bam.bai",
+    "gs://gatk-best-practices/cnv_germline_pipeline/SM-74P2T_20xy-downsampled.bam.bai",
+    "gs://gatk-best-practices/cnv_germline_pipeline/SM-74P35_20xy-downsampled.bam.bai"],
+  "CNVGermlineCaseWorkflow.contig_ploidy_model_tar": "gs://gatk-best-practices/cnv_germline_pipeline/wes-do-gc-contig-ploidy-model.tar.gz",
+  "CNVGermlineCaseWorkflow.gatk_docker": "broadinstitute/gatk:4.1.5.0",
+  "CNVGermlineCaseWorkflow.allosomal_contigs": ["X", "Y"],
+  "CNVGermlineCaseWorkflow.ref_copy_number_autosomal_contigs": 2,
+  "CNVGermlineCaseWorkflow.gcnv_initial_temperature": 1.0,
+  "CNVGermlineCaseWorkflow.gcnv_max_training_epochs": 1,
+  "CNVGermlineCaseWorkflow.gcnv_min_training_epochs": 1,
+  "CNVGermlineCaseWorkflow.gcnv_model_tars": [
+    "gs://gatk-best-practices/cnv_germline_pipeline/wes-do-gc-gcnv-model-0.tar.gz",
+    "gs://gatk-best-practices/cnv_germline_pipeline/wes-do-gc-gcnv-model-1.tar.gz"],
+  "CNVGermlineCaseWorkflow.gcnv_num_thermal_advi_iters": 1,
+  "CNVGermlineCaseWorkflow.intervals": "gs://gatk-best-practices/cnv_germline_pipeline/ice_targets_chr20xy.interval_list",
+  "CNVGermlineCaseWorkflow.filtered_intervals": "gs://gatk-best-practices/cnv_germline_pipeline/ice_targets_chr20xy.preprocessed.filtered.interval_list",
+  "CNVGermlineCaseWorkflow.num_intervals_per_scatter": 20,
+  "CNVGermlineCaseWorkflow.gcnv_max_advi_iter_first_epoch": 10,
+  "CNVGermlineCaseWorkflow.gcnv_log_emission_sampling_rounds": 1,
+  "CNVGermlineCaseWorkflow.gcnv_log_emission_samples_per_round": 1,
+  "CNVGermlineCaseWorkflow.gcnv_max_advi_iter_subsequent_epochs": 1,
+  "CNVGermlineCaseWorkflow.gcnv_max_copy_number": 3,
+  "CNVGermlineCaseWorkflow.gcnv_max_calling_iters": 1,
+  "CNVGermlineCaseWorkflow.maximum_number_events_per_sample": 120,
+  "CNVGermlineCaseWorkflow.PreprocessIntervals.bin_length": 0,
+  "CNVGermlineCaseWorkflow.ref_fasta_dict": "gs://gatk-best-practices/cnv_germline_pipeline/Homo_sapiens_assembly19.truncated.dict",
+  "CNVGermlineCaseWorkflow.ref_fasta_fai": "gs://gatk-best-practices/cnv_germline_pipeline/Homo_sapiens_assembly19.truncated.fasta.fai",
+  "CNVGermlineCaseWorkflow.ref_fasta": "gs://gatk-best-practices/cnv_germline_pipeline/Homo_sapiens_assembly19.truncated.fasta"
+}
